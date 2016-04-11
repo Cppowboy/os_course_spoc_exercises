@@ -7,15 +7,34 @@
 ### 13.1 总体介绍
 
 (1) ucore的线程控制块数据结构是什么？
+/kern/process/proc.h中定义如下：
+struct proc_struct {
+    enum proc_state state;                      // Process state
+    int pid;                                    // Process ID
+    int runs;                                   // the running times of Proces
+    uintptr_t kstack;                           // Process kernel stack
+    volatile bool need_resched;                 // bool value: need to be rescheduled to release CPU?
+    struct proc_struct *parent;                 // the parent process
+    struct mm_struct *mm;                       // Process's memory management field
+    struct context context;                     // Switch here to run process
+    struct trapframe *tf;                       // Trap frame for current interrupt
+    uintptr_t cr3;                              // CR3 register: the base addr of Page Directroy Table(PDT)
+    uint32_t flags;                             // Process flag
+    char name[PROC_NAME_LEN + 1];               // Process name
+    list_entry_t list_link;                     // Process link list 
+    list_entry_t hash_link;                     // Process hash list
+};
 
 ### 13.2 关键数据结构
 
 (2) 如何知道ucore的两个线程同在一个进程？
-
+mm用于管理线程所使用的内存，如果两个线程使用的同一片内在区域，则他们属于同一个进程。
+cr3表示页目录基地址，如果两个线程有相同的页目录基地址，表明他们属于同一个进程。
 (3) context和trapframe分别在什么时候用到？
-
+当CPU要进行进程切换时，要切换上下文，用到context。
+在发生中断、异常和系统调用时，要用到trapframe。
 (4) 用户态或内核态下的中断处理有什么区别？在trapframe中有什么体现？
-
+用户态进行中断处理要改变特权级，而内核态则不用。在trapframe中，内核态中断处理不要存储ss和esp。
 ### 13.3 执行流程
 
 (5) do_fork中的内核线程执行的第一条指令是什么？它是如何过渡到内核线程对应的函数的？

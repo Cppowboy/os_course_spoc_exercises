@@ -57,7 +57,19 @@
 
 2. （扩展练习）请在lab7-answer中分析
   -  cvp->count含义是什么？cvp->count是否可能<0, 是否可能>1？请举例或说明原因。
+  表示请求占用此条件变量的进程数，不可能小于0,可能大于1。因为cvp->count总是先加后减。
   -  cvp->owner->next_count含义是什么？cvp->owner->next_count是否可能<0, 是否可能>1？请举例或说明原因。
+  cvp->owner表示条件变量对应的monitor，cvp->owner->next_count表示因为等待这个条件变量而处于睡眠状态的进程数，它不可能<0，也不可能>1。
+  ```
+   if(cvp->count>0) {
+        cvp->owner->next_count ++;
+        up(&(cvp->sem));
+        down(&(cvp->owner->next));
+        cvp->owner->next_count --;
+      }
+  ```
+  可以看出cvp->owner->next_count总是先加后减，并且加了之后，在执行完成之后立即减1,所以不会超过1。
   -  目前的lab7-answer中管程的实现是Hansen管程类型还是Hoare管程类型？请在lab7-answer中实现另外一种类型的管程。
+  hoare管程类型。
   -  现在的管程（条件变量）实现是否有bug?
 

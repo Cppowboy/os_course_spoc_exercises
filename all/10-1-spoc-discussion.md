@@ -43,6 +43,13 @@
 
 ## 小组思考题
  1. (spoc)请以键盘输入、到标准输出设备stdout的printf输出、串口输出、磁盘文件复制为例，描述ucore操作系统I/O从请求到完成的整个执行过程，并分析I/O过程的时间开销。
+ 以fprintf函数为例。
+ 用户层：
+    调用关系fprintf->vfprintf->vprintfmt，vprintfmt格式化字符串，用fputch输出字符，调用系统调用sys_write，进入内核层。
+内核层：
+    进入系统中断处理，保护现场，然后调用trap->trap_dispatch->syscall，处理系统调用，找到相应代码，并调用。
+输出过程：
+    找到文件对应的设备后，调用相应的函数，用cputch将字符串输出。    
  2. (spoc)完成磁盘访问与磁盘寻道算法的作业，具体帮助和要求信息请看[disksim指导信息](https://github.com/chyyuu/ucore_lab/blob/master/related_info/lab8/disksim-homework.md)和[disksim参考代码](https://github.com/chyyuu/ucore_lab/blob/master/related_info/lab8/disksim-homework.py)
 
 
